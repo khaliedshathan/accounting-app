@@ -24,20 +24,16 @@ jobs:
       with:
         channel: 'stable'
 
-    - name: Build Flutter App Directly
+    - name: Build Universal Release APK
       run: |
-        # إنشاء مشروع فلاتر متكامل وشامل لكل ملفات أندرويد
         flutter create --project-name accounting_app --org com.example.accounting my_app
-        
-        # نسخ كود تطبيقك إلى المشروع
         if [ -f main.dart ]; then
           cp main.dart my_app/lib/main.dart
         fi
-        
-        # الانتقال لداخل المشروع وبناء APK
         cd my_app
         flutter pub get
-        flutter build apk --release
+        # بناء APK متوافق مع كافة معالجات وهواتف الأندرويد
+        flutter build apk --release --no-tree-shake-icons
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
