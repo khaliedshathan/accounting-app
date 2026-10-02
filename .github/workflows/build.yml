@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout Code
       uses: actions/checkout@v4
 
     - name: Setup Java
@@ -24,16 +24,21 @@ jobs:
       with:
         channel: 'stable'
 
-    - name: Create Flutter Project Structure
+    - name: Create Flutter Project Skeleton
       run: |
+        flutter create --project-name accounting_app --org com.example.accounting temp_app
         mkdir -p lib
-        mv main.dart lib/main.dart
-        flutter create . --project-name accounting_app --org com.example.accounting
+        cp temp_app/android -r ./ 2>/dev/null || true
+        cp temp_app/ios -r ./ 2>/dev/null || true
+        rm -rf temp_app
 
-    - name: Build APK
+    - name: Get Flutter Packages
+      run: flutter pub get
+
+    - name: Build Release APK
       run: flutter build apk --release
 
-    - name: Upload APK
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Flutter-AccountingApp-APK
