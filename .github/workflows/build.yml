@@ -1,8 +1,9 @@
-name: Build Android APK
+name: Build Accounting APK
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -10,41 +11,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
 
-    - name: Install System Dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libffi-dev libssl-dev cmake build-essential
-        pip install --upgrade pip
-        pip install buildozer cython
+      - name: Install Flet
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "flet==1.0.3"
 
-    - name: Create and Configure Spec File
-      run: |
-        buildozer init
-        sed -i 's/title = My Application/title = AccountingApp/' buildozer.spec
-        sed -i 's/package.name = myapp/package.name = accountingapp/' buildozer.spec
-        sed -i 's/package.domain = org.test/package.domain = org.khalied/' buildozer.spec
-        sed -i 's/source.include_exts = py,png,jpg,kv,atlas/source.include_exts = py,html,css,json/' buildozer.spec
-        sed -i 's/requirements = python3,kivy/requirements = python3,flask/' buildozer.spec
-        sed -i 's/# android.permissions = INTERNET/android.permissions = INTERNET/' buildozer.spec
-        sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
-        sed -i 's/# android.api = 31/android.api = 33/' buildozer.spec
-        sed -i 's/# android.minapi = 21/android.minapi = 21/' buildozer.spec
-        sed -i 's/# android.ndk = 25b/android.ndk = 25b/' buildozer.spec
+      - name: Build APK
+        run: |
+          flet build apk --yes
 
-    - name: Build APK with Buildozer
-      run: |
-        buildozer -v android debug
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: AccountingApp-APK
-        path: bin/*.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: accounting-app-apk
+          path: build/apk/*.apk
