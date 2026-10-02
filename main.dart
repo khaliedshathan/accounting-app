@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
-                    crossAxisAlignment: CrossAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('إضافة شخص / حساب جديد', style: TextStyle(fontWeight: FontWeight.bold)),
                       Row(
@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
-                    crossAxisAlignment: CrossAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('تسجيل عملية', style: TextStyle(fontWeight: FontWeight.bold)),
                       Row(
