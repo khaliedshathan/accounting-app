@@ -24,19 +24,18 @@ jobs:
       with:
         channel: 'stable'
 
-    - name: Build Universal Release APK
+    - name: Build Debug APK
       run: |
-        flutter create --project-name accounting_app --org com.example.accounting my_app
+        flutter create --project-name my_accounting_app --org com.mycompany.accounting my_app
         if [ -f main.dart ]; then
           cp main.dart my_app/lib/main.dart
         fi
         cd my_app
         flutter pub get
-        # بناء APK متوافق مع كافة معالجات وهواتف الأندرويد
-        flutter build apk --release --no-tree-shake-icons
+        flutter build apk --debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Flutter-AccountingApp-APK
-        path: my_app/build/app/outputs/flutter-apk/app-release.apk
+        name: AccountingApp-Debug-APK
+        path: my_app/build/app/outputs/flutter-apk/app-debug.apk
