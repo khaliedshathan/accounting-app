@@ -1,4 +1,4 @@
-name: Build Flet Android APK
+name: Build Flutter APK
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
+    - name: Checkout Repository
       uses: actions/checkout@v4
 
     - name: Setup Java
@@ -24,21 +24,17 @@ jobs:
       with:
         channel: 'stable'
 
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
-    - name: Install Flet
+    - name: Create Flutter Project Structure
       run: |
-        python -m pip install --upgrade pip
-        pip install "flet[all]"
+        mkdir -p lib
+        mv main.dart lib/main.dart
+        flutter create . --project-name accounting_app --org com.example.accounting
 
     - name: Build APK
-      run: flet build apk --yes
+      run: flutter build apk --release
 
-    - name: Upload APK Artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: AccountingApp-APK
-        path: build/apk/*.apk
+        name: Flutter-AccountingApp-APK
+        path: build/app/outputs/flutter-apk/app-release.apk
