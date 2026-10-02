@@ -24,10 +24,13 @@ jobs:
       with:
         channel: 'stable'
 
-    - name: Create Flutter Project Skeleton
+    - name: Create Flutter Project Skeleton & Fix Paths
       run: |
         flutter create --project-name accounting_app --org com.example.accounting temp_app
         mkdir -p lib
+        if [ -f main.dart ]; then
+          cp main.dart lib/main.dart
+        fi
         cp temp_app/android -r ./ 2>/dev/null || true
         cp temp_app/ios -r ./ 2>/dev/null || true
         rm -rf temp_app
