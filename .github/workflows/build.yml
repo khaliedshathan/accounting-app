@@ -24,25 +24,23 @@ jobs:
       with:
         channel: 'stable'
 
-    - name: Create Flutter Project Skeleton & Fix Paths
+    - name: Build Flutter App Directly
       run: |
-        flutter create --project-name accounting_app --org com.example.accounting temp_app
-        mkdir -p lib
+        # إنشاء مشروع فلاتر متكامل وشامل لكل ملفات أندرويد
+        flutter create --project-name accounting_app --org com.example.accounting my_app
+        
+        # نسخ كود تطبيقك إلى المشروع
         if [ -f main.dart ]; then
-          cp main.dart lib/main.dart
+          cp main.dart my_app/lib/main.dart
         fi
-        cp temp_app/android -r ./ 2>/dev/null || true
-        cp temp_app/ios -r ./ 2>/dev/null || true
-        rm -rf temp_app
-
-    - name: Get Flutter Packages
-      run: flutter pub get
-
-    - name: Build Release APK
-      run: flutter build apk --release
+        
+        # الانتقال لداخل المشروع وبناء APK
+        cd my_app
+        flutter pub get
+        flutter build apk --release
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Flutter-AccountingApp-APK
-        path: build/app/outputs/flutter-apk/app-release.apk
+        path: my_app/build/app/outputs/flutter-apk/app-release.apk
