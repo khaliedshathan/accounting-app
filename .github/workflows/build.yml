@@ -24,7 +24,7 @@ jobs:
       with:
         channel: 'stable'
 
-    - name: Build Debug APK
+    - name: Build Release APK
       run: |
         flutter create --project-name my_accounting_app --org com.mycompany.accounting my_app
         if [ -f main.dart ]; then
@@ -32,10 +32,10 @@ jobs:
         fi
         cd my_app
         flutter pub get
-        flutter build apk --debug
+        flutter build apk --release --split-per-abi
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: AccountingApp-Debug-APK
-        path: my_app/build/app/outputs/flutter-apk/app-debug.apk
+        name: AccountingApp-Release-APK
+        path: my_app/build/app/outputs/flutter-apk/
