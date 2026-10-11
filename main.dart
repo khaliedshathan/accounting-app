@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 void main() {
   runApp(const AccountingApp());
@@ -35,6 +37,22 @@ class Transaction {
     required this.details,
     required this.isGive,
   });
+
+  Map<String, dynamic> toJson() => {
+        'client': client,
+        'amount': amount,
+        'currency': currency,
+        'details': details,
+        'isGive': isGive,
+      };
+
+  factory Transaction.fromJson(Map<String, dynamic> json) => Transaction(
+        client: json['client'],
+        amount: json['amount'],
+        currency: json['currency'],
+        details: json['details'],
+        isGive: json['isGive'],
+      );
 }
 
 class HomeScreen extends StatefulWidget {
@@ -45,8 +63,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<String> _clients = [];
-  final List<Transaction> _transactions = [];
+  List<String> _clients = [];
+  List<Transaction> _transactions = [];
 
   final TextEditingController _clientController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -54,6 +72,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _selectedCurrency = 'دولار';
   String? _selectedClient;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedClients = prefs.getStringList('saved_clients');
+    if (savedClients != null) {
+      setState(() {
+        _clients = savedClients;
+        if (_clients.isNotEmpty) _selectedClient = _clients.first;
+      });
+    }
+
+    final savedTransactions = prefs.getStringList('saved_transactions');
+    if (savedTransactions != null) {
+      setState(() {
+        _transactions = savedTransactions
+            .map((item) => Transaction.fromJson(json.decode(item)))
+            .toList();
+      });
+    }
+  }
+
+  Future<void> _saveData() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('saved_clients', _clients);
+    
+    final transactionsJson = _transactions
+        .map((t) => json.encode(t.toJson()))
+        .toList();
+    prefs.setStringList('saved_transactions', transactionsJson);
+  }
 
   void _addClient() {
     final name = _clientController.text.trim();
@@ -63,6 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _selectedClient = name;
         _clientController.clear();
       });
+      _saveData();
     }
   }
 
@@ -86,6 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _amountController.clear();
       _detailsController.clear();
     });
+    _saveData();
   }
 
   double get _totalBalance {
@@ -115,6 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               Card(
+                elevation: 2,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
@@ -129,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               decoration: const InputDecoration(labelText: 'اسم الشخص'),
                             ),
                           ),
+                          const SizedBox(width: 8),
                           ElevatedButton(
                             onPressed: _addClient,
                             child: const Text('إضافة'),
@@ -140,6 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Card(
+                elevation: 2,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
@@ -205,6 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 'إجمالي الصافي: ${_totalBalance.toStringAsFixed(2)}',
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.indigo),
               ),
+              const SizedBox(height: 5),
               Expanded(
                 child: ListView.builder(
                   itemCount: _transactions.length,
@@ -224,6 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             setState(() {
                               _transactions.removeAt(index);
                             });
+                            _saveData();
                           },
                         ),
                       ),
